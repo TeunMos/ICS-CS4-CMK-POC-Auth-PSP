@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/auth.js"></script>
+  </head>
+
+  <body>
+    <div class="page-container">
+        <div class="login-container">
+            <h1>Login</h1>
+
+            <div class="login-scope-container">
+                <h2>
+                    {{url}} asks for:
+                </h3>
+                <b>{{scope_description}}</b>
+            </div>
+            
+            <div class="login-form-container">
+                <form class="login-form" onsubmit="login(event, '{{redirect_url}}')">
+                    <p>Enter your username and password to login:</p>
+                    <div>
+                      <label for="username">Username</label>
+                      <input type="text" id="username" name="username" />
+                    </div>
+                    <div>
+                      <label for="password">Password</label>
+                      <input type="password" id="password" name="password" />
+                    </div>
+                    <div>
+                      <button type="submit">Login</button>
+                    </div>
+
+                    <!-- hidden prefilled inputs -->
+                    <input type="hidden" id="redirect_url" name="redirect_url" value="{{redirect_url}}" />
+                    <input type="hidden" id="scope" name="scope" value="{{scope}}" />
+
+                  </form>
+                  <p>Don't have an account? <a href="/register">Register</a></p>
+            </div>
+          </div>
+    </div>
+    
+  </body>
+</html>
