@@ -140,4 +140,4 @@ if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # run app
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=3001)
