@@ -14,16 +14,15 @@ async function login(event) {
     });
     
     const code = response.status; // get response code
-    
+
     if (code == 200) {
         console.log("login successful");
-
-
+        
         // get body of response
         const body = await response.json();
 
         console.log(body);
-
+        
         const id_token = body.id_token;
         // redirect to redirect url with token
         window.location.href = `${redirect_url}?id_token=${id_token}`;

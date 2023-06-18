@@ -99,6 +99,40 @@ def register():
     else:
         return jsonify({'error': 'Something went wrong'}), 500
 
+@app.route('/tokeninfo', methods=['GET'])
+def tokeninfo():
+    # get url parameters
+    token = request.args.get('id_token')
+
+    if not token:
+        return jsonify({'error': 'Missing token parameter'}), 400
+
+    # validate token
+    userinfo = tokenMan.DecodeIDToken(token)
+
+    result = tokenMan.SimpleValidateAccessToken(userinfo['acces_token'])
+    
+    return jsonify(result), 200
+
+@app.route('/userinfo', methods=['GET'])
+def userinfo():
+    # get url parameters
+    token = request.args.get('id_token')
+
+    if not token:
+        return jsonify({'error': 'Missing token parameter'}), 400
+
+    # validate token
+    userinfo = tokenMan.DecodeIDToken(token)
+
+    new_userinfo = {
+        'email': userinfo['email'],
+        'username': userinfo['name'],
+        'sub': userinfo['sub']
+    }
+
+    return jsonify(new_userinfo), 200
+
 
 if __name__ == '__main__':
     # move current directory to the directory of this file 
