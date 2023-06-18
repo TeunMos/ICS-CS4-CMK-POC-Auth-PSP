@@ -1,6 +1,15 @@
 from flask import Flask, request, jsonify, render_template
-import sqlite3
+
 from services.scopes import scopesObject
+from services.authorisationManager import authorisationManager
+from services.tokenmanager import tokenManager
+from services.userDBManager import userDBMan
+
+from models.user import user
+
+
+authMan = authorisationManager()
+tokenMan = tokenManager()
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
@@ -46,17 +55,53 @@ def login():
     if not scopelist.validate_scope(scope):
         return jsonify({'error': 'Invalid scope parameter'}), 400
     
-    # check if the user exists
-    # if not, return an error
-    # if yes, return the user id
-    user_id = 1
+    # validate login and get acces token
+    acces_token = authMan.validateLogin(username, password, scope)
+    
+    if 'error' in acces_token:
+        return jsonify(acces_token), 401
+    
+    acces_token = acces_token['acces_token']
+    
+    # get user from db
+    DBuser = userDBMan().getUserbyUsername(username)
 
-    # redirect to the redirect_url with the user_id and the scope as url parameters
-    return jsonify({'user_id': user_id, 'scope': scope}), 200
+    # create user object
+    user_ = user(DBuser[1], DBuser[3], DBuser[0])
+
+    # generate id token
+    id_token = tokenMan.GenerateIDToken(user_, scope, acces_token)
+
+    # return id token
+    return jsonify({'id_token': id_token}), 200
+
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    if request.method == 'GET':
+        return render_template('register.html')
+    
+    # get form data
+    username = request.form.get('username')
+    password = request.form.get('password')
+    email = request.form.get('email')
+
+    if not username or not password or not email:
+        return jsonify({'error': 'Missing username, password or email'}), 400
+    
+    user_ = user(username, email)
+
+    # register user
+    result = authMan.createUser(user_, password)
+
+    if result:
+        return jsonify({'succes': 'user created succesfully'}), 200
+    else:
+        return jsonify({'error': 'Something went wrong'}), 500
 
 
 if __name__ == '__main__':
-    # move current directory to the directory of this file
+    # move current directory to the directory of this file 
     import os
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
